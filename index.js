@@ -14,11 +14,11 @@
     }
 
 
-    function diff(date2, format) {
+    function diff(self, date2, format, trim) {
         if (!date2 || !(date2 instanceof Date)) {
             throw "error date2";
         }
-        var date1Time = this.getTime();
+        var date1Time = self.getTime();
         var date2Time = date2.getTime();
 
         if (!format) {
@@ -38,56 +38,66 @@
             "m+": minutes,
             "s+": seconds
         };
-        for (var k in o)
-            if (new RegExp("(" + k + ")").test(format))
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(format)) {
                 format = format.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-        return format.replace(/^(0+[^\d]+)+/, '');
+            }
+        }
+        if (trim) {
+            return format.replace(/^(0+[^\d]+)+/, '');
+        }
+        return format;
     };
 
-    function format(fmt) {
+    function format(self, fmt) {
         if (!fmt) {
-            return this.toString();
+            return self.toString();
         }
         var o = {
-            "M+": this.getMonth() + 1,
-            "d+": this.getDate(),
-            "h+": this.getHours(),
-            "m+": this.getMinutes(),
-            "s+": this.getSeconds(),
-            "q+": Math.floor((this.getMonth() + 3) / 3),
-            "f": this.getMilliseconds()
+            "M+": self.getMonth() + 1,
+            "d+": self.getDate(),
+            "h+": self.getHours(),
+            "m+": self.getMinutes(),
+            "s+": self.getSeconds(),
+            "q+": Math.floor((self.getMonth() + 3) / 3),
+            "f": self.getMilliseconds()
         };
-        if (/(y+)/.test(fmt))
-            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-        for (var k in o)
-            if (new RegExp("(" + k + ")").test(fmt))
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (self.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
                 fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+
+            }
+        }
+
         return fmt;
     };
 
-    function addMilliseconds(milliseconds) {
-        var m = this.getTime() + milliseconds;
+    function addMilliseconds(self, milliseconds) {
+        var m = self.getTime() + milliseconds;
         return new Date(m);
     };
-    function addSeconds(second) {
-        return this.addMilliseconds(second * 1000);
+    function addSeconds(self, second) {
+        return self.addMilliseconds(second * 1000);
     };
-    function addMinutes(minute) {
-        return this.addSeconds(minute * 60);
+    function addMinutes(self, minute) {
+        return self.addSeconds(minute * 60);
     };
-    function addHours(hour) {
-        return this.addMinutes(60 * hour);
-    };
-
-    function addDays(day) {
-        return this.addHours(day * 24);
+    function addHours(self, hour) {
+        return self.addMinutes(60 * hour);
     };
 
-    function addMonths(month) {
+    function addDays(self, day) {
+        return self.addHours(day * 24);
+    };
+
+    function addMonths(self, month) {
         var addMonth = month % 12;
         var addYear = parseInt(month / 12);
 
-        var now = this;
+        var now = self;
         var newyear = now.getFullYear() + addYear;
 
         var newmonth = addMonth + now.getMonth() + 1;
@@ -101,25 +111,25 @@
         }
         newmonth = newmonth - 1;
 
-        var day = this.getDate();
+        var day = self.getDate();
 
         var theLastDayOfMonth = Date.prototype.theLastDayOfMonth(new Date(newyear, newmonth, 1));
         if (theLastDayOfMonth < day) {
             day = theLastDayOfMonth;
         }
 
-        var result = new Date(newyear, newmonth, day, this.getHours(), this.getMinutes(), this.getSeconds(), this.getMilliseconds());
+        var result = new Date(newyear, newmonth, day, self.getHours(), self.getMinutes(), self.getSeconds(), self.getMilliseconds());
 
         return result;
     };
 
-    function addYears(year) {
-        return new Date(this.getFullYear() + year, this.getMonth(), this.getDate(), this.getHours(), this.getMinutes(), this.getSeconds(), this.getMilliseconds());
+    function addYears(self, year) {
+        return new Date(self.getFullYear() + year, self.getMonth(), self.getDate(), self.getHours(), self.getMinutes(), self.getSeconds(), self.getMilliseconds());
     };
 
-    function isLeapYear(year) {
+    function isLeapYear(self, year) {
         if (!year) {
-            year = this.getFullYear();
+            year = self.getFullYear();
         }
         if (year % 100 === 0) {
             return year % 400 === 0;
@@ -128,13 +138,13 @@
         }
     };
 
-    function isTheLastDayOfMonth(date) {
+    function isTheLastDayOfMonth(self, date) {
         var month, day;
         if (!date) {
-            date = this;
+            date = self;
         }
-        month = this.getMonth() + 1;
-        day = this.getDate();
+        month = self.getMonth() + 1;
+        day = self.getDate();
         switch (month) {
             case 1:
             case 3:
@@ -156,9 +166,9 @@
         }
     };
 
-    function theLastDayOfMonth(date) {
+    function theLastDayOfMonth(self, date) {
         if (!date) {
-            date = this;
+            date = self;
         }
         var month = date.getMonth() + 1;
         switch (month) {
@@ -182,52 +192,54 @@
         }
     };
 
-    extend("diff", true, function (date2, format) {
-        return diff(date2, format);
+    extend("diff", true, function (date2, format, trim) {
+        return diff(this, date2, format, trim);
     });
 
     extend("format", true, function (fmt) {
-        return format(fmt);
+        return format(this, fmt);
     });
 
     extend("addMilliseconds", true, function (milliseconds) {
-        return addMilliseconds(milliseconds);
+        return addMilliseconds(this, milliseconds);
     });
 
     extend("addSeconds", true, function (seconds) {
-        return addSeconds(seconds);
+        return addSeconds(this, seconds);
     });
 
     extend("addMinutes", true, function (minutes) {
-        return addMinutes(minutes);
+        return addMinutes(this, minutes);
     });
 
     extend("addHours", true, function (hours) {
-        return addHours(hours);
+        return addHours(this, hours);
     });
 
 
     extend("addDays", true, function (days) {
-        return addDays(days);
+        return addDays(this, days);
     });
 
     extend("addMonths", true, function (months) {
-        return addMonths(months);
+        return addMonths(this, months);
     });
 
     extend("addYears", true, function (years) {
-        return addYears(years);
+        return addYears(this, years);
     });
 
     extend("isLeapYear", true, function (year) {
-        return isLeapYear(year);
+        return isLeapYear(this, year);
     });
 
     extend("isTheLastDayOfMonth", true, function (date) {
-        return isTheLastDayOfMonth(date);
+        return isTheLastDayOfMonth(this, date);
     });
-    
+
     extend("theLastDayOfMonth", true, function (date) {
-        return theLastDayOfMonth(date);
+        return theLastDayOfMonth(this, date);
     });
 })();
+
+module.exports = {};
